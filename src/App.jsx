@@ -1,9 +1,13 @@
 import FeedItem from './components/FeedItem.jsx';
 import styles from './components/FeedList.module.scss';
+import LabPanel from './lab/p2-04/practice1.jsx';
+import LiftedPanel from './lab/p2-04/practice2.jsx';
 
 function App(){
   return (
     <div className={styles.feedList}>
+      <LabPanel />
+      <LiftedPanel />
       <FeedItem
         username="jaehoon"
         profileImage="https://picsum.photos/seed/jaehoon/40/40"
