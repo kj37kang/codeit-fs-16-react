@@ -1,32 +1,71 @@
-import FeedItem from './components/FeedItem.jsx';
-import styles from './components/FeedList.module.scss';
-import LabPanel from './lab/p2-04/practice1.jsx';
-import LiftedPanel from './lab/p2-04/practice2.jsx';
+import { useState, useEffect } from "react";
+import Stories from "./components/Stories.jsx";
+import page from './components/FeedPage.module.scss';
+import FeedList from "./components/FeedList.jsx";
 
-function App(){
+
+const App = () => {
+
+  // 데이터배열을 상태로 관리
+  const [posts, setPosts] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+
+  useEffect(() => { 
+    const who = selectedUser ?? '전체';
+    console.log('① effect 시작 —', who);
+
+    const controller = new AbortController();
+
+    const loadPosts = async () => { 
+
+      const url = selectedUser
+        ? `http://localhost:3001/posts?username=${selectedUser}`
+        : 'http://localhost:3001/posts';
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error(`서버가${res.status}로 답했어요`);
+        }
+        const data = await res.json();
+
+        console.log('② 데이터 요청 —', who);
+        setPosts(data);
+      } catch (error) {
+        console.error('게시물 주소가 잘못되었습니다.', error)
+      }
+    };
+
+    loadPosts();
+
+    return () => {
+      console.log('③ 정리 —', who);
+    };
+
+  }, [selectedUser]);
+
+  // 삭제신호를 울릴 수 있는 진동벨 함수를 내린다.
+  const handleDelete = (id) => { 
+    // 지운다는 것은 -> 필터링한다는 것
+    setPosts(posts.filter((post) => post.id !== id));
+  };
+
+  const handleSelectUser = (username) => {
+    // console.log('스토리쪽으로 진동벨 전달~', username);
+    // console.log('현재 선택된 유저: ', selectedUser);
+    // console.log('지금 막 선택한 유저: ', username);
+    setSelectedUser(current => current === username ? null : username)
+  };
+
   return (
-    <div className={styles.feedList}>
-      <FeedItem
-        username="jaehoon"
-        profileImage="https://picsum.photos/seed/jaehoon/40/40"
-        postImage="https://picsum.photos/seed/post1/600/600"
-        postAlt="한강에서 찍은 노을 사진"
-        content="오늘 한강 노을 실화냐 🌇"
-        minutesAgo={32}
-        likeCount={1240}
-        commentCount={128}
+    <main className={page.mainContent}>
+      <Stories onSelect={handleSelectUser} />
+      <FeedList
+        posts={posts}
+        onDelete={handleDelete}
       />
-      <FeedItem
-        username="minji"
-        profileImage="https://picsum.photos/seed/minji/40/40"
-        postImage="https://picsum.photos/seed/post2/600/600"
-        postAlt="골목 카페 창가 사진"
-        content="퇴근길에 발견한 카페 ☕"
-        minutesAgo={8}
-        likeCount={87}
-        commentCount={12}
-      />
-    </div>
+    </main>
   );
 }
 
