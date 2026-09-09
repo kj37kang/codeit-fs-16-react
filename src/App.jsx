@@ -6,8 +6,6 @@ import LiftedPanel from './lab/p2-04/practice2.jsx';
 function App(){
   return (
     <div className={styles.feedList}>
-      <LabPanel />
-      <LiftedPanel />
       <FeedItem
         username="jaehoon"
         profileImage="https://picsum.photos/seed/jaehoon/40/40"
