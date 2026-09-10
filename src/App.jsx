@@ -1,52 +1,87 @@
-import { useState, useEffect } from "react";
-import Stories from "./components/Stories.jsx";
+import { useState, useEffect, useRef } from 'react';
+import Stories from './components/Stories.jsx';
 import page from './components/FeedPage.module.scss';
-import FeedList from "./components/FeedList.jsx";
+import stateStyles from './components/StatusMessage.module.scss';
+import FeedList from './components/FeedList.jsx';
+import CreateFeedModal from './components/CreateFeedModal.jsx';
 
+const PER_PAGE = 2;
 
 const App = () => {
 
   // 데이터배열을 상태로 관리
   const [posts, setPosts] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(() => localStorage.getItem('lastUser'));
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const [pageNumber, setPageNumber] = useState(1);
+  const [nextPage, setNextPage] = useState(null);
+
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  const loaderRef = useRef(null);
+
+  useEffect(() => {
+    if (selectedUser) {
+      localStorage.setItem('lastUser', selectedUser);
+    } else {
+      localStorage.removeItem('lastUser');
+    }
+  }, [selectedUser]);
+  
 
 
-  useEffect(() => { 
-    const who = selectedUser ?? '전체';
-    console.log('① effect 시작 —', who);
-
+  useEffect(() => {
     const controller = new AbortController();
+    let cancelled = false;
 
-    const loadPosts = async () => { 
+    const loadPosts = async () => {
+
+      const condition = `_page=${pageNumber}&_per_page=${PER_PAGE}`;
 
       const url = selectedUser
-        ? `http://localhost:3001/posts?username=${selectedUser}`
-        : 'http://localhost:3001/posts';
+        ? `http://localhost:3001/posts?username=${selectedUser}&${condition}`
+        : `http://localhost:3001/posts?${condition}`;
+      
+      setIsLoading(true);
+      setError(null);
 
       try {
-        const res = await fetch(url);
+        const res = await fetch(url, {
+          signal: controller.signal,
+        });
         if (!res.ok) {
           throw new Error(`서버가${res.status}로 답했어요`);
         }
-        const data = await res.json();
+        const envelope = await res.json();
+        setPosts((current) => [...current, ...envelope.data]);
+        setNextPage(envelope.next);
 
-        console.log('② 데이터 요청 —', who);
-        setPosts(data);
-      } catch (error) {
-        console.error('게시물 주소가 잘못되었습니다.', error)
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          return;
+        }
+        console.error('게시물 주소가 잘못되었습니다.', err);
+        setError('게시물을 불러오지 못했습니다.');
+
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
     };
 
     loadPosts();
 
     return () => {
-      console.log('③ 정리 —', who);
+      cancelled = true;
+      controller.abort();
     };
-
-  }, [selectedUser]);
+  }, [selectedUser, pageNumber]);
 
   // 삭제신호를 울릴 수 있는 진동벨 함수를 내린다.
-  const handleDelete = (id) => { 
+  const handleDelete = (id) => {
     // 지운다는 것은 -> 필터링한다는 것
     setPosts(posts.filter((post) => post.id !== id));
   };
@@ -55,18 +90,85 @@ const App = () => {
     // console.log('스토리쪽으로 진동벨 전달~', username);
     // console.log('현재 선택된 유저: ', selectedUser);
     // console.log('지금 막 선택한 유저: ', username);
-    setSelectedUser(current => current === username ? null : username)
+    setSelectedUser((current) => (current === username ? null : username));
+    setPageNumber(1);
+    setPosts([]);
+  };
+
+  // 무한 스크롤 옵저버 처리
+  useEffect(() => {
+
+    if (nextPage === null || isLoading) {
+      return;
+    }
+
+    const target = loaderRef.current;
+    if (target === null) {
+      return;
+    }
+
+    // 옵저버를 생성해서 감시를 맡김
+    const observer = new IntersectionObserver((entries) => {
+      if(entries[0].isIntersecting){
+        setPageNumber(current => current + 1);
+      }
+    });
+
+    // 감시 대상을 지정
+    observer.observe(target);
+
+    // 정리 함수
+    return () => observer.disconnect();
+  }, [isLoading, nextPage]);
+
+  // 댓글 개수 처리를 위한 진동벨 함수 생성
+  const handleAddComment = (id) => {
+    // for (const post of posts) {
+    //   if (post.id === id){
+    //     post.commentCount++;
+    //   }
+    // }
+    // setPosts([...posts]);
+    
+    setPosts(current => {
+      current.map((post) =>
+        post.id === id ? { ...post, commentCount: post.commentCount + 1 } : post,
+      );
+    });
+  };
+
+  // 피드 생성 처리를 위한 진동벨 함수 생성
+  const handleCreate = (createPost) => {
+    setPosts(current => [createPost, ...current])
   };
 
   return (
     <main className={page.mainContent}>
+      <button type="button" onClick={() => setIsCreateOpen(true)}>
+        새 게시물
+      </button>
+
       <Stories onSelect={handleSelectUser} />
-      <FeedList
-        posts={posts}
-        onDelete={handleDelete}
-      />
+
+      {error ? (
+        <p className={stateStyles.errorText}>{error}</p>
+      ) : (
+        <FeedList
+          posts={posts}
+          isLoading={isLoading}
+          onDelete={handleDelete}
+          onAddComment={handleAddComment}
+          loaderRef={loaderRef}
+        />
+      )}
+      {isCreateOpen &&
+        <CreateFeedModal
+          onClose={() => setIsCreateOpen(false)}
+          onCreate={handleCreate}
+        />
+      }
     </main>
   );
-}
+};
 
 export default App;
