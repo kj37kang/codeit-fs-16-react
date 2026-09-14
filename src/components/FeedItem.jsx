@@ -1,3 +1,4 @@
+// ~/instagram-react/src/components/FeedItem.jsx
 import FeedItemHeader from './FeedItemHeader.jsx';
 import FeedItemActions from './FeedItemActions.jsx';
 import FeedItemContent from './FeedItemContent.jsx';
@@ -19,12 +20,11 @@ const FeedItem = ({
   likeCount,
   commentCount,
   onDelete,
-  onAddComment
+  onAddComment,
 }) => {
   return (
     <article className={styles.post}>
       <FeedItemHeader
-        postId={postId}
         username={username}
         profileImage={profileImage}
         onDelete={onDelete}
@@ -39,7 +39,10 @@ const FeedItem = ({
         </div>
       </div>
 
-      <FeedItemActions likeCount={likeCount} />
+      <FeedItemActions
+        postId={postId}
+        likeCount={likeCount}
+      />
 
       <div className={styles.content}>
         <FeedItemContent

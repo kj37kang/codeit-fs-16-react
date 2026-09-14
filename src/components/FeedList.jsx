@@ -27,8 +27,6 @@ const FeedSkeleton = () => (
 
 
 const FeedList = ({ posts, isLoading, onDelete, onAddComment, loaderRef }) => {
-
-
   if (!isLoading && posts.length === 0) {
     return <p className={gridStyles.noPosts}>게시물이 없습니다.</p>;
   }
@@ -39,6 +37,7 @@ const FeedList = ({ posts, isLoading, onDelete, onAddComment, loaderRef }) => {
         {posts.map((post) => (
           <FeedItem
             key={post.id}
+            postId={post.id}
             username={post.username}
             profileImage={post.profileImage}
             postImage={post.postImage}
@@ -52,7 +51,9 @@ const FeedList = ({ posts, isLoading, onDelete, onAddComment, loaderRef }) => {
           />
         ))}
       </div>
-      <div ref={loaderRef} className={styles.loader}>
+      <div
+        ref={loaderRef}
+        className={styles.loader}>
         {isLoading && (
           <>
             <FeedSkeleton />
