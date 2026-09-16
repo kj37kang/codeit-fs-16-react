@@ -54,7 +54,7 @@ const FeedItem = ({
 
       <CommentArea>
         <FeedItemComments commentCount={commentCount} />
-        <CommentForm onAddComment={onAddComment} />
+        <CommentForm postId={postId} />
       </CommentArea>
     </article>
   );

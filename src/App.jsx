@@ -7,54 +7,52 @@ import CreateFeedModal from './components/CreateFeedModal.jsx';
 import { usePosts } from './hooks/usePosts.js';
 import UserSearch from './components/UserSearch.jsx';
 
+import { PostsContext } from './contexts/PostsContext.jsx';
+
 const App = () => {
   
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
+  const postsStore = usePosts();
+
   const {
-    posts,
-    isLoading,
     error,
-    loaderRef,
     addPost,
     removePost,
-    countUpComment,
     selectUser,
-  } = usePosts();
+  } = postsStore;
   
   return (
-    <main className={page.mainContent}>
-      <button
-        type='button'
-        onClick={() => setIsCreateOpen(true)}>
-        새 게시물
-      </button>
+    <PostsContext value={postsStore}>
+      <main className={page.mainContent}>
+        <button
+          type='button'
+          onClick={() => setIsCreateOpen(true)}>
+          새 게시물
+        </button>
 
-      <UserSearch onSearch={selectUser} />
+        <UserSearch onSearch={selectUser} />
 
-      <Stories onSelect={selectUser} />
+        <Stories onSelect={selectUser} />
 
-      {error ? (
-        <p className={stateStyles.errorText}>{error}</p>
-      ) : (
-        <>
-          <FeedList
-            posts={posts}
-            isLoading={isLoading}
-            onDelete={removePost}
-            onAddComment={countUpComment}
-            loaderRef={loaderRef}
+        {error ? (
+          <p className={stateStyles.errorText}>{error}</p>
+        ) : (
+          <>
+            <FeedList
+              onDelete={removePost}
+            />
+          </>
+        )}
+
+        {isCreateOpen && (
+          <CreateFeedModal
+            onClose={() => setIsCreateOpen(false)}
+            onCreate={addPost}
           />
-        </>
-      )}
-
-      {isCreateOpen && (
-        <CreateFeedModal
-          onClose={() => setIsCreateOpen(false)}
-          onCreate={addPost}
-        />
-      )}
-    </main>
+        )}
+      </main>
+    </PostsContext>
   );
 };
 
