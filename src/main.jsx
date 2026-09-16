@@ -2,11 +2,17 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles/global.scss';
 import App from './App.jsx';
-// import Practice from './practice.jsx';
+import { PostsProvider } from './contexts/PostsContext.jsx';
+import { BrowserRouter } from 'react-router';
+import Practice from './lab/p2-20/practice3.jsx';
 
 createRoot(document.querySelector('#root')).render(
   <StrictMode>
-    <App />
-    {/* <Practice /> */}
+    <BrowserRouter>
+      <PostsProvider>
+        <App />
+        {/* <Practice /> */}
+      </PostsProvider>
+    </BrowserRouter>
   </StrictMode>,
 );

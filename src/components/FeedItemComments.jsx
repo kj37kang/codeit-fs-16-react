@@ -1,3 +1,4 @@
+// ~/instagram-react/src/components/FeedItemComments.jsx
 import styles from './FeedItem.module.scss';
 
 const FeedItemComments = ({ commentCount }) => {

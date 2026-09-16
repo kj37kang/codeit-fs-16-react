@@ -1,59 +1,29 @@
-import { useState, useEffect, useRef } from 'react';
-import Stories from './components/Stories.jsx';
-import page from './components/FeedPage.module.scss';
-import stateStyles from './components/StatusMessage.module.scss';
-import FeedList from './components/FeedList.jsx';
-import CreateFeedModal from './components/CreateFeedModal.jsx';
-import { usePosts } from './hooks/usePosts.js';
-import UserSearch from './components/UserSearch.jsx';
+import { Navigate, Route, Routes } from 'react-router';
+import FeedPage from './pages/FeedPage.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
+import RootLayout from './layouts/RootLayout.jsx';
+import NotFoundPage from './pages/NotFoundPage.jsx';
 
-import { PostsContext } from './contexts/PostsContext.jsx';
-
-const App = () => {
-  
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-
-  const postsStore = usePosts();
-
-  const {
-    error,
-    addPost,
-    removePost,
-    selectUser,
-  } = postsStore;
-  
+const App = () => { 
   return (
-    <PostsContext value={postsStore}>
-      <main className={page.mainContent}>
-        <button
-          type='button'
-          onClick={() => setIsCreateOpen(true)}>
-          새 게시물
-        </button>
-
-        <UserSearch onSearch={selectUser} />
-
-        <Stories onSelect={selectUser} />
-
-        {error ? (
-          <p className={stateStyles.errorText}>{error}</p>
-        ) : (
-          <>
-            <FeedList
-              onDelete={removePost}
-            />
-          </>
-        )}
-
-        {isCreateOpen && (
-          <CreateFeedModal
-            onClose={() => setIsCreateOpen(false)}
-            onCreate={addPost}
-          />
-        )}
-      </main>
-    </PostsContext>
+    <Routes>
+      <Route element={<RootLayout />}>
+        <Route
+          path='/'
+          element={<FeedPage />}
+        />
+        <Route
+          path='/:username'
+          element={<ProfilePage />}
+        />
+        <Route
+          path='*'
+          element={<Navigate to='/' replace />}
+        />
+      </Route>
+    </Routes>
   );
 };
+
 
 export default App;

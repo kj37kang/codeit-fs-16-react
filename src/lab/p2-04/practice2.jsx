@@ -1,33 +1,29 @@
 import { useState } from "react";
 
-const CounterView = ({label, count, onClickFunc}) => {
-  console.log('CounterView 실행');
+const CommentCounter = () => { 
 
+  const [commentCount, setCommentCount] = useState(128);
+  
   return (
-    <button onClick={onClickFunc}>{label} {count}</button>
-  );
-};
-
-const LiftedPanel = () => {
-  console.log('LiftedPanel 실행');
-
-  const [countA, setCountA] = useState(0);
-  const [countB, setCountB] = useState(0);
-
-  return (
-    <div>
-      <CounterView
-        label='A'
-        count={countA}
-        onClick={() => {setCountA(countA + 1)}}
-      />
-      <CounterView
-        label='B'
-        count={countB}
-        onClick={() => {setCountB(countB + 1)}}
-      />
+    <div className='postComments'>
+      <div className='commentSection'>
+        <button
+          type='button'
+          className='viewCommentsButton'>
+          댓글 {commentCount.toLocaleString()}개 보기
+        </button>
+      </div>
+      <button
+        type='button'
+        className='commentSubmit'
+        onClick={() => { 
+          setCommentCount(c => c + 1);
+        }}
+      >
+        게시
+      </button>
     </div>
   );
 };
 
-export default LiftedPanel;
+export default CommentCounter;

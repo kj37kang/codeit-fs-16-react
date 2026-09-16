@@ -1,4 +1,5 @@
-export const HelloBox = () => {
+
+export const HelloBox = () => { 
   return (
     <section>
       <h2>여기는 내가 쓴 컴포넌트예요</h2>
