@@ -1,10 +1,14 @@
-export const ProfileCard = () => {
+
+export const ProfileCard = () => { 
   return (
-    <section className="profile-card">
-      <img src="https://i.pinimg.com/originals/17/79/dc/1779dc0687c5d3efec13d7acb653845d.jpg" alt="jaehoon 프로필 사진" />
-      <p>jaehoon</p>
+    <section className='profile-card'>
+      <img
+        src='https://picsum.photos/seed/jaehoon/80/80'
+        alt='jaehoon 프로필 사진'
+      />
+      <h2>jaehoon</h2>
       <p>게시물 42 · 팔로워 1240 · 팔로잉 180</p>
-      <p>날아가는 중✈️</p>
+      <p>새벽에 러닝하고 사진 찍어요</p>
     </section>
   );
 };

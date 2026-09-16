@@ -19,15 +19,13 @@ const FeedItem = ({
   minutesAgo,
   likeCount,
   commentCount,
-  onDelete,
-  onAddComment,
 }) => {
   return (
     <article className={styles.post}>
       <FeedItemHeader
+        postId={postId}
         username={username}
         profileImage={profileImage}
-        onDelete={onDelete}
       />
 
       <div className={styles.imageContainer}>

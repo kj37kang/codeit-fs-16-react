@@ -8,5 +8,6 @@ export function makeCounter() {
 }
 
 const x = makeCounter();
-console.log(typeof x);
-console.log(typeof x());
+
+const y = x();
+console.log(y);

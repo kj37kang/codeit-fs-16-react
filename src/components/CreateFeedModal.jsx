@@ -1,8 +1,9 @@
 // ~/instagram-react/src/components/CreateFeedModal.jsx
-import { FaArrowLeft, FaImages, FaSpinner, FaXmark } from "react-icons/fa6";
+import { FaArrowLeft, FaImages, FaXmark, FaSpinner } from 'react-icons/fa6';
 import styles from './CreateFeedModal.module.scss';
 import { useState, useRef } from 'react';
 import carousel from './Carousel.module.scss';
+import { postApi } from '../services/api';
 
 // 이미지를 문자열로 변환하는 헬퍼함수
 const readAsDataUrl = (file) =>
@@ -30,50 +31,41 @@ const CreateFeedModal = ({ onClose, onCreate }) => {
       setSelectedFile(file);
     }
 
-    fileInputRef.current.value = "";
+    fileInputRef.current.value = '';
   };
 
   // 컴퓨터에서 선택 버튼 클릭 이벤트 핸들러
-  const handlePick = () => { 
+  const handlePick = () => {
     // input.file을 대리로 클릭하게 만듬
     fileInputRef.current.click();
   };
 
+  // 공유하기 버튼을 눌렀을 때 이벤트 핸들러
   const handleShare = async () => {
     setIsSending(true);
 
     try {
       const postImage = await readAsDataUrl(selectedFile);
-      const response = await fetch('http://localhost:3001/posts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          username: "testuser",
-          profileImage: "https://picsum.photos/seed/testuser/40/40",
-          postImage,
-          postAlt: "테스트 이미지",
-          content: "",
-          minutesAgo: 0,
-          likeCount: 0,
-          commentCount: 0,
-        }),
+
+      const response = await postApi.create({
+        username: 'soongu',
+        profileImage: 'https://picsum.photos/seed/soongu/40/40',
+        postImage,
+        postAlt: '내가 올린 사진',
+        content: '하하호호 새로운 피드!!',
+        minutesAgo: 0,
+        likeCount: 0,
+        commentCount: 0,
       });
 
-      if(!response.ok){
-        throw new Error(`서버가 ${response.status}로 답했어요`);
-      }
-      const data = await response.json();
-
-      onCreate(data);
+      onCreate(response);
       onClose();
     } catch (error) {
-      console.error("게시물을 올리지 못했어요.", error);
+      console.error('게시물을 올리지 못했어요.', error);
       setIsSending(false);
     }
   };
-  
+
   return (
     <div className={styles.modalContainer}>
       <div
@@ -90,30 +82,37 @@ const CreateFeedModal = ({ onClose, onCreate }) => {
 
       <div className={styles.modalContent}>
         <div className={styles.modalHeader}>
-          <button className={styles.backButton} style={{ visibility: "hidden" }} type="button">
+          <button
+            className={styles.backButton}
+            style={{ visibility: 'hidden' }}
+            type='button'>
             <FaArrowLeft />
           </button>
+
           <h2 className={styles.modalTitle}>새 게시물 만들기</h2>
+
           {previewUrl && (
             <button
-              className={styles.nextButton}
+              className={`${styles.nextButton} ${isSending ? styles.loading : ''}`}
               onClick={handleShare}
-              type="button"
-            >
+              disabled={isSending}
+              type='button'>
               공유하기
             </button>
           )}
-            {isSending && (
-              <div className={styles.loadingSpinner}>
-                <FaSpinner />
-              </div>
-            )}
+
+          {isSending && (
+            <div className={styles.loadingSpinner}>
+              <FaSpinner />
+            </div>
+          )}
         </div>
 
         <div className={styles.modalBody}>
           <div className={`${styles.step}${styles.active}`}>
             <div className={styles.uploadContainer}>
               <input
+                id='fileInput'
                 ref={fileInputRef}
                 type='file'
                 accept='image/jpeg,image/png,image/gif,image/webp,image/avif'
@@ -122,16 +121,24 @@ const CreateFeedModal = ({ onClose, onCreate }) => {
               />
 
               {previewUrl ? (
-                <div className={styles.previewContainer}>
-                  <div className={styles.previewArea}>
-                    <div className={carousel.carouselSlide}>
-                      <img
-                        src={previewUrl}
-                        alt='고른 사진 미리보기'
-                      />
+                <>
+                  <div className={styles.previewContainer}>
+                    <div className={styles.previewArea}>
+                      <div className={carousel.carouselSlide}>
+                        <img
+                          src={previewUrl}
+                          alt='고른 사진 미리보기'
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
+                  <button
+                    className={styles.uploadButton}
+                    onClick={handlePick}
+                    type='button'>
+                    다른 사진 고르기
+                  </button>
+                </>
               ) : (
                 <div className={styles.uploadArea}>
                   <FaImages

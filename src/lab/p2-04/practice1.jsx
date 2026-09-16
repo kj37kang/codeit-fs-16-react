@@ -1,34 +1,47 @@
-import { useState } from "react";
-
-const CountA = () => {
-  console.log('CountA 실행');
-
-  const [count, setCount] = useState(0);
-
+// ~/instagram-react/src/lab/practice1.jsx
+const StoryBody = ({ username, profileImage }) => {
   return (
-    <button onClick={() => {setCount(count + 1)}}>A {count}</button>
+    <>
+      <div className='storyAvatar'>
+        <div className='storyRing'></div>
+        <img
+          src={profileImage}
+          alt={`${username}의 스토리`}
+        />
+      </div>
+      <span className='storyUsername'>{username}</span>
+    </>
   );
 };
 
-const CountB = () => {
-  console.log('CountB 실행');
-
-  const [count, setCount] = useState(0);
-
+const StoryItem = ({ username, profileImage }) => {
   return (
-    <button onClick={() => {setCount(count + 1)}}>B {count}</button>
-  );
-};
-
-const LabPanel = () => {
-  console.log('LabPanel 실행');
-
-  return (
-    <div>
-      <CountA />
-      <CountB />
+    <div className='storyItem'>
+      <StoryBody
+        username={username}
+        profileImage={profileImage}
+      />
     </div>
   );
 };
 
-export default LabPanel;
+const StoryList = ({ children }) => {
+  return <div className='storiesList'>{children}</div>;
+};
+
+const Stories = () => {
+  return (
+    <StoryList>
+      <StoryItem
+        username='minji'
+        profileImage='https://picsum.photos/seed/minji/56/56'
+      />
+      <StoryItem
+        username='seungwoo'
+        profileImage='https://picsum.photos/seed/seungwoo/56/56'
+      />
+    </StoryList>
+  );
+};
+
+export default Stories;

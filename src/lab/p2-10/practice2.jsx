@@ -18,7 +18,7 @@ const PostsByUser = ({ username }) => {
           { signal: controller.signal },
         );
         if (!response.ok) {
-          throw new Error(`서버가${response.status}로 답했어요`);
+          throw new Error(`서버가 ${response.status}로 답했어요`);
         }
         setPosts(await response.json());
       } catch (err) {
@@ -42,11 +42,11 @@ const PostsByUser = ({ username }) => {
   }, [username]);
 
   if (isLoading) {
-    return<p>불러오는 중...</p>;
+    return <p>불러오는 중...</p>;
   }
 
   if (posts.length === 0) {
-    return<p>게시물이 없습니다.</p>;
+    return <p>게시물이 없습니다.</p>;
   }
 
   return (
